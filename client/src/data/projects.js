@@ -2,6 +2,25 @@
 // the UI then shows "coming soon" instead of a broken or invented link.
 export const projects = [
   {
+    id: "portfolio",
+    title: "Cosmic MERN Developer Portfolio",
+    category: "Full Stack MERN Application",
+    imageKey: "portfolio",
+    desc: "A full stack cosmic-themed developer portfolio featuring reactive micro-interactions, dark/light cosmic theming, an Express REST API backend with rate limiting, MongoDB contact submission storage, and automated Nodemailer email notifications.",
+    tags: ["React.js", "Vite", "Tailwind CSS", "Node.js", "Express.js", "MongoDB", "Mongoose", "Nodemailer", "Framer Motion", "Vercel", "Render"],
+    features: [
+      "Cosmic interactive UI with Framer Motion animations & custom cursor",
+      "Express.js REST API with validation, helmet security & rate limiting",
+      "MongoDB Atlas database integration for contact message storage",
+      "Automated SMTP email notifications via Nodemailer",
+      "Live Frontend deployed on Vercel with responsive mobile-first design",
+      "Live Backend deployed on Render cloud with robust CORS & health checks",
+    ],
+    liveLink: "https://my-portfolio-jade-seven-49.vercel.app/",
+    apiLink: "https://my-portfolio-0os5.onrender.com",
+    githubLink: "https://github.com/Nithyasrikesavalu/My-Portfolio",
+  },
+  {
     id: "botvortex",
     title: "BotVortex – Robotics Education Platform",
     category: "Full Stack MERN Application",
@@ -34,28 +53,4 @@ export const projects = [
     liveLink: "https://lnkd.in/gFFi57iU",
     githubLink: "https://github.com/Nithyasrikesavalu/Giggling-Platypus-Co_coffee-shop",
   },
-  /*
-  {
-    id: "employee-tasks",
-    title: "Employee Task Management System",
-    category: "Full Stack Application",
-    imageKey: "employeeTasks",
-    desc: "A web application for assigning tasks to employees, tracking task status and viewing progress on a dashboard.",
-    tags: ["React.js", "Node.js", "Express.js", "SQL"],
-    features: ["Employee task assignment", "Status tracking", "Dashboard"],
-    liveLink: "", // add when a real deployed URL exists
-    githubLink: "", // add the repository URL
-  },
-  {
-    id: "hostel-review",
-    title: "Hostel Review Application",
-    category: "Full Stack Application",
-    imageKey: "hostelReview",
-    desc: "A hostel review application with authentication and review workflows, built with React and Vite on the frontend and Node.js and Express.js on the backend.",
-    tags: ["React.js", "Vite", "Node.js", "Express.js"],
-    features: ["Authentication", "Review workflows"],
-    liveLink: "", // add when a real deployed URL exists
-    githubLink: "", // add the repository URL
-  },
-  */
 ];

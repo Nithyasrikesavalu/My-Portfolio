@@ -18,6 +18,7 @@ export const profileHeroImg = findAsset("profile-hero")?.url ?? profileImg;
 export const profileAboutImg = findAsset("profile-about")?.url ?? profileImg;
 
 export const projectImages = {
+  portfolio: findAsset("portfolio")?.url ?? null,
   botvortex: findAsset("botvortex")?.url ?? null,
   oneTap: findAsset("one_tap")?.url ?? null,
   coffee: findAsset("coffee_shop")?.url ?? null,

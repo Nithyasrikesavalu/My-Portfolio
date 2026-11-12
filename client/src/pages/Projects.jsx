@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Eye } from "lucide-react";
+import { ArrowUpRight, Eye, Server } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import Reveal from "../components/Reveal";
 import TiltCard from "../components/TiltCard";
@@ -44,18 +44,23 @@ const Projects = () => {
                       <button type="button" onClick={() => setSelected(p)} className={`${btn} bg-gold text-[#17051F] hover:bg-[#ffe066]`}>
                         <Eye size={15} aria-hidden="true" /> View Details<span className="sr-only"> for {p.title}</span>
                       </button>
-                      {p.githubLink && (
-                        <a href={p.githubLink} target="_blank" rel="noopener noreferrer" className={`${btn} group/b border border-line text-ink hover:border-gold`}>
-                          <FaGithub size={14} aria-hidden="true" /> GitHub<span className="sr-only"> for {p.title} (opens in a new tab)</span>
-                        </a>
-                      )}
                       {p.liveLink && (
                         <a href={p.liveLink} target="_blank" rel="noopener noreferrer" className={`${btn} group/b border border-line text-ink hover:border-gold`}>
                           Live Demo <ArrowUpRight size={14} aria-hidden="true" className="transition-transform duration-300 group-hover/b:-translate-y-0.5 group-hover/b:translate-x-0.5" /><span className="sr-only"> for {p.title} (opens in a new tab)</span>
                         </a>
                       )}
+                      {(p.apiLink || p.backendLink) && (
+                        <a href={p.apiLink || p.backendLink} target="_blank" rel="noopener noreferrer" className={`${btn} group/b border border-line text-ink hover:border-gold`}>
+                          <Server size={14} aria-hidden="true" /> Backend API <ArrowUpRight size={14} aria-hidden="true" className="transition-transform duration-300 group-hover/b:-translate-y-0.5 group-hover/b:translate-x-0.5" /><span className="sr-only"> for {p.title} (opens in a new tab)</span>
+                        </a>
+                      )}
+                      {p.githubLink && (
+                        <a href={p.githubLink} target="_blank" rel="noopener noreferrer" className={`${btn} group/b border border-line text-ink hover:border-gold`}>
+                          <FaGithub size={14} aria-hidden="true" /> GitHub Repository<span className="sr-only"> for {p.title} (opens in a new tab)</span>
+                        </a>
+                      )}
                     </div>
-                    {!p.githubLink && !p.liveLink && <p className="mt-3 text-xs text-mute">Links coming soon.</p>}
+                    {!p.githubLink && !p.liveLink && !p.apiLink && !p.backendLink && <p className="mt-3 text-xs text-mute">Links coming soon.</p>}
                   </div>
                 </div>
               </TiltCard>

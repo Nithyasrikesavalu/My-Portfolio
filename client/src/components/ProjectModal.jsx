@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { X, ArrowUpRight } from "lucide-react";
+import { X, ArrowUpRight, Server } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import ProjectPreview from "./ProjectPreview";
 
@@ -72,13 +72,18 @@ const ProjectModal = ({ project, image, onClose }) => {
                 Live Demo <ArrowUpRight size={16} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span>
               </a>
             )}
-            {project.githubLink && (
-              <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className={`${btn} border border-line text-ink hover:border-gold`}>
-                <FaGithub size={15} aria-hidden="true" /> GitHub<span className="sr-only"> (opens in a new tab)</span>
+            {(project.apiLink || project.backendLink) && (
+              <a href={project.apiLink || project.backendLink} target="_blank" rel="noopener noreferrer" className={`${btn} border border-line text-ink hover:border-gold`}>
+                <Server size={15} aria-hidden="true" /> Backend API <ArrowUpRight size={15} aria-hidden="true" /><span className="sr-only"> (opens in a new tab)</span>
               </a>
             )}
-            {(!project.liveLink || !project.githubLink) && (
-              <p className="text-sm text-mute">{!project.liveLink && !project.githubLink ? "Repository and demo links coming soon." : !project.liveLink ? "Live demo link coming soon." : "Repository link coming soon."}</p>
+            {project.githubLink && (
+              <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className={`${btn} border border-line text-ink hover:border-gold`}>
+                <FaGithub size={15} aria-hidden="true" /> GitHub Repository<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            )}
+            {(!project.liveLink && !project.githubLink && !project.apiLink && !project.backendLink) && (
+              <p className="text-sm text-mute">Links coming soon.</p>
             )}
           </div>
         </div>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, FileText } from "lucide-react";
+import { Menu, X, FileText, ArrowUpRight, Server } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import ResumeModal from "./ResumeModal";
 import { cvUrl, cvExt } from "../lib/assets";
+import { site } from "../data/site";
 
 // ids must match the section wrappers in App.jsx
 const links = [
@@ -78,7 +79,33 @@ const Navbar = () => {
           ))}
         </ul>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {site.livePortfolio && (
+            <a
+              href={site.livePortfolio}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-semibold text-emerald-400 transition-all hover:border-emerald-400 hover:bg-emerald-500/20"
+              title="Live Portfolio on Vercel"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+              <span>Live</span>
+              <ArrowUpRight size={12} aria-hidden="true" />
+            </a>
+          )}
+          {site.backendApi && (
+            <a
+              href={site.backendApi}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1.5 text-xs font-semibold text-accent transition-all hover:border-accent hover:bg-accent/20"
+              title="Backend API on Render"
+            >
+              <Server size={12} aria-hidden="true" />
+              <span>API</span>
+              <ArrowUpRight size={12} aria-hidden="true" />
+            </a>
+          )}
           {cvUrl && (
             <button
               type="button"
@@ -137,6 +164,34 @@ const Navbar = () => {
                   <FileText className="h-4 w-4" />
                   <span>View Resume</span>
                 </button>
+              </li>
+            )}
+            {(site.livePortfolio || site.backendApi) && (
+              <li className="mt-2 pt-2 border-t border-line/40 grid grid-cols-2 gap-2">
+                {site.livePortfolio && (
+                  <a
+                    href={site.livePortfolio}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-2.5 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Live Portfolio</span>
+                    <ArrowUpRight size={12} />
+                  </a>
+                )}
+                {site.backendApi && (
+                  <a
+                    href={site.backendApi}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-accent/30 bg-accent/10 py-2.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/20"
+                  >
+                    <Server size={12} />
+                    <span>Backend API</span>
+                    <ArrowUpRight size={12} />
+                  </a>
+                )}
               </li>
             )}
           </motion.ul>
