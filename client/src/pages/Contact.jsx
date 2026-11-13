@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { FaCheck, FaCopy, FaDownload, FaEnvelope, FaGithub, FaLinkedin, FaMapMarkerAlt, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
-import { ArrowUpRight, Server } from "lucide-react";
 import Reveal from "../components/Reveal";
 import SuccessModal from "../components/SuccessModal";
 import { cvUrl, cvExt } from "../lib/assets";
@@ -168,32 +167,6 @@ const Contact = () => {
             )}
             {site.linkedin && (
               <a href={site.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile" title="LinkedIn profile" className="grid h-11 w-11 place-items-center rounded-xl border border-line text-mute transition-colors hover:border-accent hover:text-ink"><FaLinkedin size={18} /></a>
-            )}
-            {site.livePortfolio && (
-              <a
-                href={site.livePortfolio}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Live Portfolio on Vercel (opens in a new tab)"
-                className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 text-xs font-semibold text-emerald-400 transition-colors hover:border-emerald-400 hover:bg-emerald-500/20"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Live Portfolio</span>
-                <ArrowUpRight size={13} />
-              </a>
-            )}
-            {site.backendApi && (
-              <a
-                href={site.backendApi}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Backend API on Render (opens in a new tab)"
-                className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-accent/30 bg-accent/10 px-3.5 text-xs font-semibold text-accent transition-colors hover:border-accent hover:bg-accent/20"
-              >
-                <Server size={13} />
-                <span>Backend API</span>
-                <ArrowUpRight size={13} />
-              </a>
             )}
             <button type="button" onClick={copyEmail} className="inline-flex h-11 items-center gap-2 rounded-xl border border-line px-4 text-sm text-mute transition-colors hover:border-accent hover:text-ink">
               {copied ? <FaCheck aria-hidden="true" /> : <FaCopy aria-hidden="true" />} {copied ? "Copied" : "Copy email"}
