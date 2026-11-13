@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaCheck, FaCopy, FaDownload, FaEnvelope, FaGithub, FaLinkedin, FaMapMarkerAlt, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 import Reveal from "../components/Reveal";
 import SuccessModal from "../components/SuccessModal";
@@ -23,6 +23,7 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(false);
+  const [slowLoading, setSlowLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -33,6 +34,22 @@ const Contact = () => {
     email: "",
     message: "",
   });
+
+  // Silently ping backend in the background so it starts waking up if idle
+  useEffect(() => {
+    fetch(API_ENDPOINTS.health).catch(() => {});
+  }, []);
+
+  // Show a gentle notice if Render free instance takes a few seconds to spin up
+  useEffect(() => {
+    let t;
+    if (loading) {
+      t = setTimeout(() => setSlowLoading(true), 4000);
+    } else {
+      setSlowLoading(false);
+    }
+    return () => clearTimeout(t);
+  }, [loading]);
 
   const copyEmail = async () => {
     try {
@@ -60,8 +77,9 @@ const Contact = () => {
 
     setLoading(true);
     setStatus({ type: "", message: "" });
+    // Allow up to 75 seconds for Render free instance cold spin-up
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 35000);
+    const timer = setTimeout(() => controller.abort(), 75000);
 
     const submission = {
       name: formData.name.trim(),
@@ -107,12 +125,17 @@ const Contact = () => {
       }
     } catch (err) {
       console.error("Contact form error:", err);
-      const networkMsg = "Couldn't reach the server, so your message was not sent. Please try again or email me directly.";
+      const isTimeout =
+        err.name === "AbortError" ||
+        (err.message && (err.message.includes("network") || err.message.includes("timed out") || err.message.includes("Failed to fetch")));
+      const networkMsg = isTimeout
+        ? "The cloud server was waking up from sleep. It is now active — please click 'Send message' again!"
+        : "Couldn't reach the server, so your message was not sent. Please try again or email me directly.";
       setStatus({ type: "error", message: networkMsg });
       setModalState({
         isOpen: true,
         type: "error",
-        title: "Connection Failed",
+        title: isTimeout ? "Server Waking Up" : "Connection Failed",
         statusMessage: networkMsg,
         name: submission.name,
         email: submission.email,
@@ -133,7 +156,7 @@ const Contact = () => {
         <Reveal>
           <h2 id="contact-title" className="text-4xl font-semibold leading-tight md:text-6xl">Let&apos;s Build Something <span className="hl">Great</span></h2>
           <p className="mt-5 max-w-md text-lg text-mute">
-            If you&apos;re hiring for a junior developer role or have a project in mind, send me a message.
+            I&apos;m looking for junior developer roles and open to freelance projects. If you have an opportunity or need a hand with a web application, get in touch.
           </p>
 
           <ul className="mt-10 space-y-2">
@@ -216,6 +239,11 @@ const Contact = () => {
             <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-3 rounded-xl bg-gold py-4 font-semibold text-[#17051F] transition-colors hover:bg-[#ffe066] disabled:cursor-not-allowed disabled:opacity-60">
               {loading ? (<><span aria-hidden="true" className="h-5 w-5 animate-spin rounded-full border-2 border-[#17051F]/30 border-t-[#17051F]" /> Sending…</>) : (<><FaEnvelope aria-hidden="true" /> Send message</>)}
             </button>
+            {slowLoading && (
+              <p className="text-center text-xs text-mute animate-pulse">
+                Connecting to cloud server (Render spin-up)... thank you for your patience!
+              </p>
+            )}
           </form>
         </Reveal>
       </div>

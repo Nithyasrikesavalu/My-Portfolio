@@ -15,9 +15,11 @@ import contactRoutes from "./routes/contactRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
+const HOST = "0.0.0.0";
 
 app.use(helmet({ contentSecurityPolicy: false })); // CSP is skipped so Google Fonts and the Vite build load; tighten if you host elsewhere.
+
 // Allowed origins for CORS: deployed Vercel frontend, local development hosts, and any configured in CLIENT_ORIGIN
 const defaultAllowedOrigins = [
   "https://my-portfolio-jade-seven-49.vercel.app",
@@ -70,13 +72,32 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json({ limit: "20kb" }));
 
-app.get("/api/health", (req, res) => res.json({ ok: true, database: isDbConnected() ? "connected" : "disconnected" }));
+// Simple /health endpoint for server monitoring and Render health checks
+app.get("/health", (req, res) =>
+  res.json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    database: isDbConnected() ? "connected" : "disconnected",
+  })
+);
+
+// Standard API health endpoint
+app.get("/api/health", (req, res) =>
+  res.json({
+    ok: true,
+    status: "ok",
+    database: isDbConnected() ? "connected" : "disconnected",
+  })
+);
+
 app.use("/api/contact", contactRoutes);
 app.use("/api", notFound);
 
-// In production, serve the built frontend from the same server.
+// In production, serve the built frontend from the same server if client/dist exists.
 const dist = path.join(__dirname, "../client/dist");
 if (fs.existsSync(dist)) {
   app.use(express.static(dist));
@@ -86,5 +107,7 @@ if (fs.existsSync(dist)) {
 app.use(errorHandler);
 
 connectDB().finally(() => {
-  app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));
+  app.listen(PORT, HOST, () => {
+    console.log(`Server listening on port ${PORT} bound to ${HOST}`);
+  });
 });

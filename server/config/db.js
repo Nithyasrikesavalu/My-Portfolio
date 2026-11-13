@@ -3,6 +3,23 @@ import mongoose from "mongoose";
 
 export const isDbConnected = () => mongoose.connection.readyState === 1;
 
+// Connection event handlers for runtime monitoring and error logging
+mongoose.connection.on("connected", () => {
+  console.log("✅ MongoDB connection established.");
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("❌ MongoDB connection error:", err.message);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.warn("⚠️ MongoDB connection lost. Disconnected.");
+});
+
+mongoose.connection.on("reconnected", () => {
+  console.log("🔄 MongoDB connection reconnected.");
+});
+
 export async function connectDB(retries = 3) {
   const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
   if (!uri) {

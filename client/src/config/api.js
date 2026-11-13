@@ -31,6 +31,7 @@ const getApiBaseUrl = () => {
 export const API_BASE_URL = getApiBaseUrl();
 
 export const API_ENDPOINTS = {
-  health: `${API_BASE_URL}/api/health`,
+  health: `${API_BASE_URL}/health`,
+  apiHealth: `${API_BASE_URL}/api/health`,
   contact: `${API_BASE_URL}/api/contact`,
 };
