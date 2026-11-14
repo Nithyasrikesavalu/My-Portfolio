@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, ChevronDown, MapPin, ArrowUpRight, Server } from "lucide-react";
+import { ArrowRight, ChevronDown, MapPin } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import MagneticButton from "../components/MagneticButton";
 import PortraitAnimation from "../components/PortraitAnimation";
@@ -67,41 +67,12 @@ const Hero = () => {
             </MagneticButton>
           </motion.div>
 
-          <motion.div variants={fade} className="mt-8 flex flex-wrap items-center gap-3">
+          <motion.div variants={fade} className="mt-8 flex items-center gap-3">
             {site.github && (
               <a href={site.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub profile" title="GitHub profile" className="grid h-11 w-11 place-items-center rounded-full border border-line bg-card/50 text-ink transition-colors hover:border-gold hover:text-gold"><FaGithub size={18} /></a>
             )}
             {site.linkedin && (
               <a href={site.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile" title="LinkedIn profile" className="grid h-11 w-11 place-items-center rounded-full border border-line bg-card/50 text-ink transition-colors hover:border-gold hover:text-gold"><FaLinkedin size={18} /></a>
-            )}
-            {site.livePortfolio && (
-              <a
-                href={site.livePortfolio}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Live Portfolio on Vercel (opens in a new tab)"
-                className="group inline-flex h-11 items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 text-xs font-semibold text-emerald-400 backdrop-blur transition-all hover:border-emerald-400 hover:bg-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/20"
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                </span>
-                <span>Live Portfolio</span>
-                <ArrowUpRight size={13} aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </a>
-            )}
-            {site.backendApi && (
-              <a
-                href={site.backendApi}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Backend API on Render (opens in a new tab)"
-                className="group inline-flex h-11 items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 text-xs font-semibold text-accent backdrop-blur transition-all hover:border-accent hover:bg-accent/20 hover:shadow-lg hover:shadow-accent/20"
-              >
-                <Server size={14} aria-hidden="true" />
-                <span>Backend API</span>
-                <ArrowUpRight size={13} aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </a>
             )}
           </motion.div>
         </motion.div>
