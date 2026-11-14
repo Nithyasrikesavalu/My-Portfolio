@@ -12,6 +12,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { connectDB, isDbConnected } from "./config/db.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import { isEmailConfigured } from "./controllers/contactController.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -82,6 +83,7 @@ app.get("/health", (req, res) =>
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     database: isDbConnected() ? "connected" : "disconnected",
+    emailConfigured: isEmailConfigured(),
   })
 );
 
@@ -91,6 +93,7 @@ app.get("/api/health", (req, res) =>
     ok: true,
     status: "ok",
     database: isDbConnected() ? "connected" : "disconnected",
+    emailConfigured: isEmailConfigured(),
   })
 );
 

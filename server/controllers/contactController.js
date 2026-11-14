@@ -3,28 +3,28 @@ import Contact from "../models/Contact.js";
 import { isDbConnected } from "../config/db.js";
 
 function getTransporter() {
-  const host = process.env.SMTP_HOST;
   const user = (process.env.SMTP_USER || process.env.EMAIL_USER || "").trim();
   const pass = (process.env.SMTP_PASS || process.env.EMAIL_PASS || "").replace(/\s+/g, "");
+  const host = (process.env.SMTP_HOST || "").trim();
   const port = Number(process.env.SMTP_PORT) || 465;
 
   if (!user || !pass) {
     return null;
   }
 
-  // If a custom SMTP host is provided, use it
-  if (host) {
+  // If using Gmail (either by service or host smtp.gmail.com), use Gmail service transport with App Password
+  if (!host || host.includes("gmail.com") || host === "gmail") {
     return nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
+      service: "gmail",
       auth: { user, pass },
     });
   }
 
-  // Default to standard Gmail service
+  // Custom SMTP host
   return nodemailer.createTransport({
-    service: "gmail",
+    host,
+    port,
+    secure: port === 465,
     auth: { user, pass },
   });
 }
@@ -92,9 +92,9 @@ function generateEmailHtml({ name, email, message, formattedDate }) {
         <!-- Main Container Card -->
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);">
           
-          <!-- Top Gradient Accent Bar (Purple/Blue) -->
+          <!-- Top Gradient Accent Bar (Purple/Gold) -->
           <tr>
-            <td style="height: 4px; background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);"></td>
+            <td style="height: 4px; background: linear-gradient(90deg, #a855f7 0%, #ffd629 100%);"></td>
           </tr>
 
           <!-- Header Section -->
@@ -103,14 +103,14 @@ function generateEmailHtml({ name, email, message, formattedDate }) {
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td>
-                    <span style="display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.75px; color: #4f46e5; background-color: #eef2ff; border-radius: 4px; margin-bottom: 12px;">
+                    <span style="display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.75px; color: #7c3aed; background-color: #f3e8ff; border-radius: 4px; margin-bottom: 12px;">
                       Portfolio Enquiry
                     </span>
                     <h1 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.3; letter-spacing: -0.3px;">
-                      New Portfolio Enquiry
+                      New Portfolio Message
                     </h1>
                     <p style="margin: 0; font-size: 14px; color: #64748b; line-height: 1.5;">
-                      You have received a new message from your portfolio website.
+                      You have received a new contact message through your portfolio website.
                     </p>
                   </td>
                 </tr>
@@ -140,7 +140,7 @@ function generateEmailHtml({ name, email, message, formattedDate }) {
                           Sender Email
                         </td>
                         <td style="padding: 7px 0; font-size: 14px; vertical-align: top;">
-                          <a href="mailto:${safeEmail}" style="color: #4f46e5; text-decoration: none; font-weight: 600;">
+                          <a href="mailto:${safeEmail}" style="color: #7c3aed; text-decoration: none; font-weight: 600;">
                             ${safeEmail}
                           </a>
                         </td>
@@ -149,7 +149,7 @@ function generateEmailHtml({ name, email, message, formattedDate }) {
                         <td style="padding: 7px 0; width: 120px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; vertical-align: top;">
                           Date &amp; Time
                         </td>
-                        <td style="padding: 7px 0; font-size: 13px; color: #475569; vertical-align: top;">
+                        <td style="padding: 7px 0; font-size: 14px; color: #475569; vertical-align: top;">
                           ${formattedDate}
                         </td>
                       </tr>
@@ -158,47 +158,42 @@ function generateEmailHtml({ name, email, message, formattedDate }) {
                 </tr>
               </table>
 
-              <!-- Message Section (Separate Highlighted Card) -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #4f46e5; border-radius: 8px;">
-                <tr>
-                  <td style="padding: 20px;">
-                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.75px; color: #4f46e5; margin-bottom: 12px;">
-                      Message
-                    </div>
-                    <div style="margin: 0; font-size: 14px; line-height: 1.65; color: #1e293b; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+              <!-- Message Section -->
+              <div style="margin-bottom: 28px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">
+                  Message Content
+                </h3>
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-left: 4px solid #7c3aed; border-radius: 4px; padding: 18px 20px; font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-wrap; word-break: break-word;">
 ${safeMessage}
-                    </div>
-                  </td>
-                </tr>
-              </table>
+                </div>
+              </div>
 
-              <!-- Quick Reply Action Button -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px;">
+              <!-- Quick Action Button -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td align="left">
-                    <a href="mailto:${safeEmail}" style="display: inline-block; background-color: #4f46e5; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 6px; box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2);">
+                  <td align="center" style="padding: 8px 0 16px 0;">
+                    <a href="mailto:${safeEmail}?subject=Re:%20Portfolio%20Enquiry" style="display: inline-block; background-color: #7c3aed; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
                       Reply to ${safeName} &rarr;
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <!-- Professional Footer -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 36px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
-                <tr>
-                  <td style="text-align: center; color: #94a3b8; font-size: 12px; line-height: 1.6;">
-                    <p style="margin: 0 0 4px 0; font-weight: 600; color: #64748b;">
-                      Portfolio Contact System
-                    </p>
-                    <p style="margin: 0;">
-                      This email was automatically generated by your portfolio website.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
             </td>
           </tr>
+
+          <!-- Footer Section -->
+          <tr>
+            <td style="background-color: #f1f5f9; padding: 20px 32px; border-top: 1px solid #e2e8f0; text-align: center;">
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: #64748b;">
+                This notification was sent automatically by your Cosmic MERN Portfolio.
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #94a3b8;">
+                Direct reply will be sent to: <span style="font-family: monospace;">${safeEmail}</span>
+              </p>
+            </td>
+          </tr>
+
         </table>
       </td>
     </tr>
@@ -210,7 +205,7 @@ ${safeMessage}
 async function sendContactEmail({ name, email, message }) {
   const transporter = getTransporter();
   if (!transporter) {
-    throw new Error("Email credentials are not configured on the server.");
+    throw new Error("Email service is not configured. Missing SMTP_USER or SMTP_PASS.");
   }
 
   const recipient =
@@ -219,14 +214,14 @@ async function sendContactEmail({ name, email, message }) {
     process.env.SMTP_USER ||
     process.env.EMAIL_USER ||
     "nithyanithya3993@gmail.com";
-  const sender = process.env.SMTP_USER || process.env.EMAIL_USER;
 
+  const sender = process.env.SMTP_USER || process.env.EMAIL_USER || recipient;
   const formattedDate = formatDateTime();
 
   const mailOptions = {
     from: `"Portfolio Contact System" <${sender}>`,
     to: recipient,
-    replyTo: email,
+    replyTo: `"${escapeHtml(name)}" <${email}>`,
     subject: `New Portfolio Enquiry – ${name}`,
     text: `New Portfolio Enquiry
 ----------------------------------------
@@ -251,66 +246,58 @@ This email was automatically generated by your portfolio website.`,
 
 export async function createContact(req, res, next) {
   try {
+    const { name, email, message } = req.contact;
     const dbConnected = isDbConnected();
     const emailReady = isEmailConfigured();
 
-    // If neither DB nor Email is configured, alert the caller
-    if (!dbConnected && !emailReady) {
+    console.log(`📩 [Contact API] Incoming submission from "${name}" <${email}>`);
+    console.log(`   Database Status: ${dbConnected ? "Connected" : "Disconnected"}`);
+    console.log(`   Email Service Status: ${emailReady ? "Configured" : "NOT Configured (missing SMTP env vars)"}`);
+
+    // If email is not configured on Render, do not display fake success!
+    if (!emailReady) {
+      console.error("❌ Email service not configured: SMTP_USER/EMAIL_USER or SMTP_PASS/EMAIL_PASS is missing in environment variables.");
       return res.status(503).json({
         success: false,
-        message: "Contact service is not configured yet. Please email directly.",
+        message: "Email service is not configured on the server. Please check SMTP environment variables in Render.",
       });
     }
 
-    let saved = null;
+    // 1. Store message in MongoDB if database is connected
+    let savedContact = null;
     if (dbConnected) {
       try {
-        saved = await Contact.create(req.contact);
-        console.log("✅ Contact message saved to MongoDB. ID:", saved._id);
+        savedContact = await Contact.create(req.contact);
+        console.log(`✅ Message saved to database (ID: ${savedContact._id})`);
       } catch (dbErr) {
-        console.error("Database save error:", dbErr.message);
+        console.warn("⚠️ Failed to store message in database:", dbErr.message);
       }
+    } else {
+      console.warn("⚠️ Database is offline. Proceeding to deliver email notification.");
     }
 
-    // When the message is successfully stored in MongoDB, dispatch email in the background
-    // and respond immediately so the user's browser never experiences timeout or AbortError.
-    if (saved) {
-      if (emailReady) {
-        sendContactEmail(req.contact)
-          .then(() => console.log("✅ Contact notification email sent to:", process.env.NOTIFY_TO || "admin"))
-          .catch((mailErr) => console.warn("⚠️ Background email dispatch error:", mailErr.message));
-      }
-
-      return res.status(201).json({
-        success: true,
-        message: "Message sent. I'll reply to the email address you gave.",
-        id: saved._id,
+    // 2. Await actual email sending operation
+    let mailResult = null;
+    try {
+      mailResult = await sendContactEmail(req.contact);
+      console.log(`✅ Email notification delivered successfully! Message ID: ${mailResult.messageId}`);
+    } catch (mailErr) {
+      console.error("❌ Email notification delivery failed:", mailErr.message);
+      return res.status(502).json({
+        success: false,
+        message: `Failed to deliver email notification: ${mailErr.message}. Please check server email credentials.`,
       });
     }
 
-    // If MongoDB was not connected or save failed, await email dispatch so we can report result
-    if (emailReady) {
-      try {
-        await sendContactEmail(req.contact);
-        console.log("✅ Contact notification email sent to:", process.env.NOTIFY_TO || "admin");
-        return res.status(201).json({
-          success: true,
-          message: "Message sent. I'll reply to the email address you gave.",
-        });
-      } catch (mailErr) {
-        console.error("Email send error:", mailErr.message);
-        return res.status(500).json({
-          success: false,
-          message: `Failed to send email (${mailErr.message}) and database is disconnected. Please check server SMTP settings.`,
-        });
-      }
-    }
-
-    return res.status(500).json({
-      success: false,
-      message: "Could not save message or send email. Please try again.",
+    // 3. Return success response ONLY after email delivery confirmation!
+    return res.status(201).json({
+      success: true,
+      message: "Message sent! I'll reply to the email address you gave.",
+      id: savedContact?._id,
+      messageId: mailResult.messageId,
     });
   } catch (err) {
+    console.error("❌ Error in contact endpoint:", err.message);
     next(err);
   }
 }

@@ -1,5 +1,11 @@
-import "dotenv/config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config();
 
 async function testEmail() {
   const user = (process.env.SMTP_USER || process.env.EMAIL_USER || "").trim();
