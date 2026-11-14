@@ -76,6 +76,15 @@ app.use(
 
 app.use(express.json({ limit: "20kb" }));
 
+// Root route for backend status
+app.get("/", (req, res) =>
+  res.json({
+    status: "success",
+    message: "Portfolio Backend API is running",
+    service: "Portfolio Backend",
+  })
+);
+
 // Simple /health endpoint for server monitoring and Render health checks
 app.get("/health", (req, res) =>
   res.json({
