@@ -263,6 +263,30 @@ export async function createContact(req, res, next) {
       });
     }
 
+    // Check for duplicate submission within the last 60 seconds to prevent email spam / duplicate notifications
+    if (dbConnected) {
+      try {
+        const sixtySecondsAgo = new Date(Date.now() - 60000);
+        const duplicate = await Contact.findOne({
+          email: req.contact.email,
+          message: req.contact.message,
+          createdAt: { $gte: sixtySecondsAgo },
+        });
+
+        if (duplicate) {
+          console.log(`ℹ️ [Contact API] Duplicate submission detected for "${email}". Returning confirmation without resending duplicate email.`);
+          return res.status(200).json({
+            success: true,
+            message: "Message sent! I'll reply to the email address you gave.",
+            id: duplicate._id,
+            duplicateIgnored: true,
+          });
+        }
+      } catch (dupErr) {
+        console.warn("⚠️ Duplicate check error, proceeding:", dupErr.message);
+      }
+    }
+
     // 1. Store message in MongoDB if database is connected
     let savedContact = null;
     if (dbConnected) {

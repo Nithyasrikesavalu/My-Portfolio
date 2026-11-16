@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaCheck, FaCopy, FaDownload, FaEnvelope, FaGithub, FaLinkedin, FaMapMarkerAlt, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 import Reveal from "../components/Reveal";
 import SuccessModal from "../components/SuccessModal";
 import { cvUrl, cvExt } from "../lib/assets";
 import { site } from "../data/site";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS, API_TIMEOUTS } from "../config/api";
 
 const EMAIL = site.email || "nithyanithya3993@gmail.com";
 
@@ -24,6 +24,7 @@ const Contact = () => {
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [slowLoading, setSlowLoading] = useState(false);
+  const [verySlowLoading, setVerySlowLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -35,21 +36,40 @@ const Contact = () => {
     message: "",
   });
 
+  // Track in-flight request to prevent duplicate submissions and prevent re-render aborts
+  const isSubmittingRef = useRef(false);
+  const activeAbortRef = useRef(null);
+  const timeoutIdRef = useRef(null);
+
   // Silently ping backend in the background so it starts waking up if idle
   useEffect(() => {
     fetch(API_ENDPOINTS.health).catch(() => {});
   }, []);
 
-  // Show a gentle notice if Render free instance takes a few seconds to spin up
+  // Show a progressive notice if Render free instance takes a few seconds to spin up
   useEffect(() => {
-    let t;
+    let t1, t2;
     if (loading) {
-      t = setTimeout(() => setSlowLoading(true), 4000);
+      t1 = setTimeout(() => setSlowLoading(true), 4000);
+      t2 = setTimeout(() => setVerySlowLoading(true), 25000);
     } else {
       setSlowLoading(false);
+      setVerySlowLoading(false);
     }
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [loading]);
+
+  // Clean up any pending timeout on unmount without cancelling the in-flight server request
+  useEffect(() => {
+    return () => {
+      if (timeoutIdRef.current) {
+        clearTimeout(timeoutIdRef.current);
+      }
+    };
+  }, []);
 
   const copyEmail = async () => {
     try {
@@ -68,6 +88,12 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent duplicate submissions if already submitting or loading
+    if (isSubmittingRef.current || loading) {
+      return;
+    }
+
     const found = validate(formData);
     setErrors(found);
     if (Object.keys(found).length) {
@@ -75,11 +101,25 @@ const Contact = () => {
       return;
     }
 
+    // Lock submission state synchronously
+    isSubmittingRef.current = true;
     setLoading(true);
     setStatus({ type: "", message: "" });
-    // Allow up to 75 seconds for Render free instance cold spin-up
+
+    // Allow up to 120 seconds (120,000ms) for Render free tier spin-up and SMTP delivery confirmation
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 75000);
+    activeAbortRef.current = controller;
+
+    const timeoutDuration = API_TIMEOUTS?.contact || 120000;
+    const timer = setTimeout(() => {
+      controller.abort(
+        new DOMException(
+          `Request timed out after ${timeoutDuration / 1000} seconds waiting for server response`,
+          "TimeoutError"
+        )
+      );
+    }, timeoutDuration);
+    timeoutIdRef.current = timer;
 
     const submission = {
       name: formData.name.trim(),
@@ -96,7 +136,11 @@ const Contact = () => {
       });
 
       let data = null;
-      try { data = await response.json(); } catch { /* non-JSON response */ }
+      try {
+        data = await response.json();
+      } catch {
+        /* non-JSON response */
+      }
 
       if (response.ok && data?.success) {
         setModalState({
@@ -111,7 +155,9 @@ const Contact = () => {
         setStatus({ type: "success", message: "Message sent! I'll reply to the email address you gave." });
         setFormData({ name: "", email: "", message: "" });
       } else {
-        const errorMsg = data?.message || `The server couldn't send your message (status ${response.status}). Please email me directly.`;
+        const errorMsg =
+          data?.message ||
+          `The server couldn't send your message (status ${response.status}). Please email me directly.`;
         setStatus({ type: "error", message: errorMsg });
         setModalState({
           isOpen: true,
@@ -126,11 +172,20 @@ const Contact = () => {
     } catch (err) {
       console.error("Contact form error:", err);
       const isTimeout =
+        err.name === "TimeoutError" ||
         err.name === "AbortError" ||
-        (err.message && (err.message.includes("network") || err.message.includes("timed out") || err.message.includes("Failed to fetch")));
+        (err.message &&
+          (err.message.includes("timed out") ||
+            err.message.includes("timeout") ||
+            err.message.includes("network") ||
+            err.message.includes("Failed to fetch")));
+
+      const timeoutNotice =
+        "The server took more than 120 seconds to respond or is waking up from sleep. The server should now be warm — please click 'Send message' again, or email me directly.";
       const networkMsg = isTimeout
-        ? "The cloud server was waking up from sleep. It is now active — please click 'Send message' again!"
+        ? timeoutNotice
         : "Couldn't reach the server, so your message was not sent. Please try again or email me directly.";
+
       setStatus({ type: "error", message: networkMsg });
       setModalState({
         isOpen: true,
@@ -143,6 +198,9 @@ const Contact = () => {
       });
     } finally {
       clearTimeout(timer);
+      timeoutIdRef.current = null;
+      activeAbortRef.current = null;
+      isSubmittingRef.current = false;
       setLoading(false);
     }
   };
@@ -236,12 +294,31 @@ const Contact = () => {
               )}
             </div>
 
-            <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-3 rounded-xl bg-gold py-4 font-semibold text-[#17051F] transition-colors hover:bg-[#ffe066] disabled:cursor-not-allowed disabled:opacity-60">
-              {loading ? (<><span aria-hidden="true" className="h-5 w-5 animate-spin rounded-full border-2 border-[#17051F]/30 border-t-[#17051F]" /> Sending…</>) : (<><FaEnvelope aria-hidden="true" /> Send message</>)}
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-3 rounded-xl bg-gold py-4 font-semibold text-[#17051F] transition-colors hover:bg-[#ffe066] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? (
+                <>
+                  <span aria-hidden="true" className="h-5 w-5 animate-spin rounded-full border-2 border-[#17051F]/30 border-t-[#17051F]" />
+                  {verySlowLoading
+                    ? "Waking up server..."
+                    : slowLoading
+                    ? "Connecting to server..."
+                    : "Sending…"}
+                </>
+              ) : (
+                <>
+                  <FaEnvelope aria-hidden="true" /> Send message
+                </>
+              )}
             </button>
-            {slowLoading && (
+            {loading && slowLoading && (
               <p className="text-center text-xs text-mute animate-pulse">
-                Connecting to cloud server (Render spin-up)... thank you for your patience!
+                {verySlowLoading
+                  ? "Render free instance is spinning up and connecting to the database. Please hold on, this takes up to a minute on first visit..."
+                  : "Connecting to cloud server (Render spin-up)... thank you for your patience!"}
               </p>
             )}
           </form>

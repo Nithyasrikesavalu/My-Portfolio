@@ -35,3 +35,13 @@ export const API_ENDPOINTS = {
   apiHealth: `${API_BASE_URL}/api/health`,
   contact: `${API_BASE_URL}/api/contact`,
 };
+
+/**
+ * Timeout configuration for network requests.
+ * Render Free Tier instances spin down on inactivity and can require up to 60-90s on cold start.
+ * Contact form timeout is set to 120 seconds (120000ms) to accommodate container spin-up and SMTP handshake.
+ */
+export const API_TIMEOUTS = {
+  contact: 120000,
+  health: 15000,
+};
