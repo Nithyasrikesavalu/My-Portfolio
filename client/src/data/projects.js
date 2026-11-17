@@ -31,7 +31,7 @@ export const projects = [
     desc: "A coffee shop store where customers browse products, fill a cart, place orders and track their status. Administrators manage products, customers and orders from a dedicated dashboard.",
     tags: ["React.js", "Vite", "Tailwind CSS", "Node.js", "Express.js", "MongoDB Atlas", "JWT", "Axios", "React Context API"],
     features: ["User Authentication", "Product Catalog", "Shopping Cart", "Checkout", "Order Tracking", "Admin Dashboard", "Audio Notifications", "Contact Form", "Secure REST APIs", "Responsive UI"],
-    liveLink: "https://lnkd.in/gFFi57iU",
+    liveLink: "https://gigglingplatypus.vercel.app",
     githubLink: "https://github.com/Nithyasrikesavalu/Giggling-Platypus-Co_coffee-shop",
   },
 ];
