@@ -20,7 +20,7 @@ export const projects = [
     desc: "A platform that connects customers with service providers through a secure booking system. Users, vendors and administrators each get a dedicated dashboard for booking, vendor management, real-time notifications and platform administration.",
     tags: ["React.js", "Vite", "Tailwind CSS", "Node.js", "Express.js", "MongoDB Atlas", "JWT", "Socket.IO", "Axios"],
     features: ["Role-Based Authentication", "OTP Verification", "Vendor Dashboard", "Admin Dashboard", "Service Booking", "Dynamic Time Slot Selection", "Real-Time Notifications", "Booking Management", "Responsive Design"],
-    liveLink: "https://lnkd.in/gFgNk4pH",
+    liveLink: "https://onetap-service.vercel.app",
     githubLink: "https://github.com/Nithyasrikesavalu/Onetap-service.git",
   },
   {
